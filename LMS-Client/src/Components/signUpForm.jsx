@@ -1,6 +1,9 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import CustomInput from "./customInput";
 import useForm from "../hooks/useForm";
+import { createUser } from "../axios/userAxios";
+import { toast } from "react-toastify";
+
 const initialFormData = {
   first_name: "",
   last_name: "",
@@ -10,12 +13,36 @@ const initialFormData = {
 };
 
 const SignupForm = (props) => {
+  // eslint-disable-next-line react/prop-types
   const { setISLoginForm } = props;
+
   const useFormPayload = useForm(initialFormData);
-  const { formData, setFormData, handleOnChange } = useFormPayload;
+
+  const { formData, handleOnChange } = useFormPayload;
+  const { first_name, last_name, password, email, phone } = formData;
 
   // handle form submission
-  const handleOnSubmit = () => {};
+  const handleOnSubmit = async (e) => {
+    e.preventDefault();
+
+    // call axios
+    const result = await createUser({
+      first_name,
+      last_name,
+      password,
+      email,
+      phone,
+    });
+
+    if (result.status === "error") {
+      return toast.error(result.message);
+    }
+
+    toast.success(result.message);
+    // once a user is created, we display login form
+    setISLoginForm(true);
+  };
+
   return (
     <Form onSubmit={(e) => handleOnSubmit(e)}>
       <h2 className="text-center mb-4">Create an Account</h2>
